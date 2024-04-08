@@ -1,6 +1,7 @@
 #ifndef STRUCTURE_H
 #define STRUCTURE_H
 
+#include <stdint.h>
 typedef struct {
 	uint8_t ** right;
 	uint8_t ** bottom;
