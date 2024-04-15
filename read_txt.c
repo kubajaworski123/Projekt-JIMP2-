@@ -2,7 +2,12 @@
 #include "format.h"
 #include "structure.h"
 #include <stdint.h>
+<<<<<<< HEAD
 
+=======
+#include <stdio.h>
+#include <stdlib.h>
+>>>>>>> 99cc524 (dodanie search)
 /* Moduł read_txt.c służy do odczytywania pliku wejściowego z labiryntem i jego konwersji
  * na format, który nasz program będzie obsługiwać. */
 
