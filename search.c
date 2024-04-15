@@ -13,19 +13,22 @@ int* solve_maze (Maze maze , FILE* F){ // funkcja zwraca początek i koniec labi
 	FILE* V = fopen("visited.txt","a+");
 	FILE* A = fopen("ancestors.txt","a+");
 	FILE* Q = fopen("queue.txt","a+");
-	
+	int* output = malloc(4*sizeof(int));
+
 	//przypisanie wartości pierwszego elementu
 	if(maze->start[0] == 0){ // wejście od góry
 		add_visited(V , maze->start[0] , (maze->start[1]-1)/2);
 		add_to_queue(Q , maze->start[0] , (maze->start[1]-1)/2);
-		printf("start: %d %d\n" , maze->start[0] , (maze->start[1]-1)/2);
+		output[0] = maze->start[0];
+		output[1] = (maze->start[1]-1)/2;
 	}
 	if(maze->start[1] == 0){ // wejście od boku (i na ukos)
 		add_visited(V , (maze->start[0]-1)/2 , maze->start[1]);
 		add_to_queue(Q , (maze->start[0]-1)/2 , maze->start[1]);
-		printf("start: %d %d\n" , (maze->start[0]-1)/2 , maze->start[1]);
+		output[0] = (maze->start[0]-1)/2;
+                output[1] = maze->start[1];
+		
 	}
-	int* output = malloc(sizeof(int)*4);
 	int* end = malloc(sizeof(int)*2);
 	int* dim = maze_dim(F);
 
@@ -37,18 +40,12 @@ int* solve_maze (Maze maze , FILE* F){ // funkcja zwraca początek i koniec labi
 		end[0] = maze->finish[0]/2;
 		end[1] = (maze->finish[1]-1)/2;
 	 }
-	output[0] = (maze->start[0]-1)/2;
-	output[1] = maze->start[1];
 	output[2] = end[0];
 	output[3] = end[1];
-
-	printf("end: %d %d \n" , end[0] , end[1]);
 
 	int* current = malloc(sizeof(int)*2);	
 	while((current[0] == end[0] && current[1] == end[1]) == 0){
 		current = pop_queue(Q , qln);
-		printf("current: %d %d\n", current[0] , current[1]);
-		fflush(stdout);
 		qln++;
 		if(right_exists(maze->right , current[0] , current[1]) == 0){ //dodajemy komórkę na prawo o ile jest ona dostępna
 			if(is_visited(V , current[0] , current[1]+1) == 0){
