@@ -2,12 +2,9 @@
 #include "format.h"
 #include "structure.h"
 #include <stdint.h>
-<<<<<<< HEAD
-
-=======
 #include <stdio.h>
 #include <stdlib.h>
->>>>>>> 99cc524 (dodanie search)
+
 /* Moduł read_txt.c służy do odczytywania pliku wejściowego z labiryntem i jego konwersji
  * na format, który nasz program będzie obsługiwać. */
 
@@ -40,6 +37,10 @@ uint32_t read_txt(FILE *in, Maze maze){
                                 maze->finish[0]=current_line;
                                 maze->finish[1]=i;
                         }
+			else if (buf[i]!='X' || buf[i]!=' '){
+				fprintf(stderr,"Błąd: nieprawidłowy znak w pliku %s.\n",in);
+				return 1;
+			}
                         else if (current_line>0 && i>0) {
                                 if (current_line%2==1){
                                         if (i%2==0 && buf[i]=='X'){
