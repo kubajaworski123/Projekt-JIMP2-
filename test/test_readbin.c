@@ -22,40 +22,46 @@ typedef struct {
 	uint8_t path;
 } *Mazebin;
 
-int read_binary(FILE *in, Maze maze, int* dim){
-	Mazebin mazebin = malloc(40);
-	char *buf = malloc(12);
+int main(int argc, char**argv){
 	int i;
-
+	Maze maze = malloc(1024*256*sizeof(uint8_t)+4*sizeof(int));
+	maze_init(maze);
+	Mazebin mazebin = malloc(40);
+	FILE *in = fopen(argv[1],"rb");
+	char *buf = malloc(12);
+	printf("Odczyt pliku binarnego:\n");
 	//File ID:
 	fread(buf,4,1,in);
 	mazebin->file_id = 0;
 	for (i=3; i>=0; i--)
 		mazebin->file_id+=(int)pow(256,i)*buf[i];
+	printf("File ID: 0x%x\n", mazebin->file_id);
 	
 	//Escape:
 	fread(buf,1,1,in);
 	mazebin->escape = buf[0];
+	printf("Escape:  0x%x\n", mazebin->escape);
 	
 	//Columns:
 	fread(buf,2,1,in);
 	mazebin->columns = 0;
 	for (i=1; i>=0; i--)
 		mazebin->columns+=(int)pow(256,i)*buf[i];
-	dim[1] = (mazebin->columns-1)/2-1;
+	printf("Columns: 0x%x\n",mazebin->columns);
 
 	//Lines:
 	fread(buf,2,1,in);
 	mazebin->lines = 0;
         for (i=1; i>=0; i--)
                 mazebin->lines+=(int)pow(256,i)*buf[i];
-	dim[0] = (mazebin->lines-1)/2-1;
+        printf("Lines:   0x%x\n",mazebin->lines);
 
 	//Entry X:
 	fread(buf,2,1,in);
 	mazebin->entry_x = 0;
         for (i=1; i>=0; i--)
                 mazebin->entry_x+=(int)pow(256,i)*buf[i];
+        printf("Entry X: 0x%x\n",mazebin->entry_x);
 	if (mazebin->entry_x==1) maze->start[0] = 0;
 	else maze->start[0] = mazebin->entry_x/2-1;
 
@@ -64,6 +70,7 @@ int read_binary(FILE *in, Maze maze, int* dim){
         mazebin->entry_y = 0;
         for (i=1; i>=0; i--)
                 mazebin->entry_y+=(int)pow(256,i)*buf[i];
+        printf("Entry Y: 0x%x\n",mazebin->entry_y);
 	if (mazebin->entry_y==1) maze->start[1] = 0;
 	else maze->start[1] = mazebin->entry_y/2-1;
 
@@ -72,6 +79,7 @@ int read_binary(FILE *in, Maze maze, int* dim){
         mazebin->exit_x = 0;
         for (i=1; i>=0; i--)
                 mazebin->exit_x+=(int)pow(256,i)*buf[i];
+        printf("Exit X:  0x%x\n",mazebin->exit_x);
 	if (mazebin->exit_x==mazebin->lines) maze->finish[0] = (mazebin->lines-1)/2-1;
 	else maze->finish[0] = mazebin->exit_x/2-1;
 
@@ -80,6 +88,7 @@ int read_binary(FILE *in, Maze maze, int* dim){
         mazebin->exit_y = 0;
         for (i=1; i>=0; i--)
                 mazebin->exit_y+=(int)pow(256,i)*buf[i];
+        printf("Exit Y:  0x%x\n",mazebin->exit_y);
 	if (mazebin->exit_y==mazebin->columns) maze->finish[1] = (mazebin->columns-1)/2-1;
 	else maze->finish[1] = mazebin->exit_y/2-1;
 
@@ -96,35 +105,42 @@ int read_binary(FILE *in, Maze maze, int* dim){
 	mazebin->res3 = 0;
 	for (i=3; i>=0; i--)
 		mazebin->res3+=(int)pow(256,i)*buf[1];
+        printf("Reserve: 0x%x%x%x\n", mazebin->res1, mazebin->res2, mazebin->res3);
 
 	//Counter:
 	fread(buf,4,1,in);
         mazebin->counter = 0;
         for (i=3; i>=0; i--)
                 mazebin->counter+=(int)pow(256,i)*buf[i];
+        printf("Counter: 0x%x\n", mazebin->counter);
 
 	//Solution Offset:
 	fread(buf,4,1,in);
         mazebin->s_offset = 0;
         for (i=3; i>=0; i--)
                 mazebin->s_offset+=(int)pow(256,i)*buf[i];
+        printf("SOffset: 0x%x\n", mazebin->s_offset);
 
 	//Separator:
 	fread(buf,1,1,in);
         mazebin->separator = buf[0];
+        printf("Separat: 0x%x\n", mazebin->separator);
 
 	//Wall:
 	fread(buf,1,1,in);
         mazebin->wall = buf[0];
+        printf("Wall:    0x%x\n", mazebin->wall);
 
 	//Path:
 	fread(buf,1,1,in);
 	mazebin->path = buf[0];
+	printf("Path:    0x%x\n", mazebin->path);
 
 	//Odczyt właściwych danych:
 	unsigned char value;
 	unsigned char count;
 	unsigned char c;
+	int readno = 0;
 	int curr_column = 0;
 	int curr_row = 0;
 	int mode = 2; // mode=0 - wczytano separator, mode=1 - value, mode=2 - count
@@ -140,6 +156,7 @@ int read_binary(FILE *in, Maze maze, int* dim){
 		else if (mode==1){
 			mode = 2;
 			count = c;
+			printf("Odczyt nr %d:\n Value = 0x%x, Count = 0x%x\n",++readno,value,count);
 			if (curr_row>0){
 			    if (curr_row%2==1 && value==mazebin->wall){
 				right_on(maze->right,(curr_row-1)/2,curr_column/2-1);
@@ -183,7 +200,7 @@ int read_binary(FILE *in, Maze maze, int* dim){
 				}
 			    }
 			    else {
-			    	fprintf(stderr,"Błąd: niepoprawne słowo kodowe w pliku binarnym.\n");
+			    	fprintf("Błąd: niepoprawne słowo kodowe w pliku binarnym %s.\n",in);
 				return -1;
 			    }
 			} else {
@@ -197,6 +214,28 @@ int read_binary(FILE *in, Maze maze, int* dim){
 			}
 		}
 	}
+	
+	//Chcę zobaczyć co to zwraca
+	FILE *result = fopen("result/result","w");
+	int j;
+	fprintf(result,"maze->right:\n");
+	for (i=0; i<256; i++){
+		for (j=0; j<32; j++){
+			fprintf(result,"%2x ",maze->right[i][j]);
+		}
+		fprintf(result,"\n");
+	}
+	fprintf(result,"\nmaze->bottom:\n");
+	for (i=0; i<256; i++){
+                for (j=0; j<32; j++){
+                        fprintf(result,"%2x ",maze->bottom[i][j]);
+                }
+                fprintf(result,"\n");
+        }
+	fprintf(result,"\nentry: %3d %3d\nexit:  %3d %3d",maze->start[0],maze->start[1],maze->finish[0],maze->finish[1]);
+
+	maze_free(maze);
 	free(mazebin);
+	free(buf);
 	return 0;
 }

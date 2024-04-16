@@ -37,8 +37,8 @@ uint32_t read_txt(FILE *in, Maze maze){
                                 maze->finish[0]=current_line;
                                 maze->finish[1]=i;
                         }
-			else if (buf[i]!='X' || buf[i]!=' '){
-				fprintf(stderr,"Błąd: nieprawidłowy znak w pliku %s.\n",in);
+			else if (buf[i]!='X' && buf[i]!=' ' && buf[i]!='\n' && buf[i]!=EOF){
+				fprintf(stderr,"Błąd: nieprawidłowy znak w pliku tekstowym.\n");
 				return 1;
 			}
                         else if (current_line>0 && i>0) {

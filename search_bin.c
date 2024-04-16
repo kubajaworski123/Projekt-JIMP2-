@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int* solve_maze (Maze maze , int x , int y){ // funkcja zwraca początek i koniec labiryntu
+int* solve_maze_bin (Maze maze , int x , int y){ // funkcja zwraca początek i koniec labiryntu
 	
 	long qln = 0; // qln - queue line numerator
 	FILE* V = fopen("visited.txt","a+");
@@ -15,33 +15,22 @@ int* solve_maze (Maze maze , int x , int y){ // funkcja zwraca początek i konie
 	FILE* Q = fopen("queue.txt","a+");
 	int* output = malloc(4*sizeof(int));
 
-	//przypisanie wartości pierwszego elementu
-	if(maze->start[0] == 0){ // wejście od góry
-		add_visited(V , maze->start[0] , (maze->start[1]-1)/2);
-		add_to_queue(Q , maze->start[0] , (maze->start[1]-1)/2);
+	// przypisanie wartości pierwszego elementu
+		add_visited(V , maze->start[0] , maze->start[1]);
+		add_to_queue(Q , maze->start[0] , maze->start[1]);
 		output[0] = maze->start[0];
-		output[1] = (maze->start[1]-1)/2;
-	}
-	if(maze->start[1] == 0){ // wejście od boku (i na ukos)
-		add_visited(V , (maze->start[0]-1)/2 , maze->start[1]);
-		add_to_queue(Q , (maze->start[0]-1)/2 , maze->start[1]);
-		output[0] = (maze->start[0]-1)/2;
                 output[1] = maze->start[1];
 		
-	}
+
 	int* end = malloc(sizeof(int)*2);
 	int* dim = malloc(sizeof(int)*2);
 	dim[0]=x;
 	dim[1]=y;
 
 	// przypisanie wartości ostatniego elementu
-	if(dim[0] == maze->finish[0]){
-		end[0] = (maze->finish[0] - 1)/2;
-        	end[1] = maze->finish[1]/2;	
-	}else if(dim[1] == maze->finish[1]){
-		end[0] = maze->finish[0]/2;
-		end[1] = (maze->finish[1]-1)/2;
-	 }
+	end[0] = maze->finish[0];
+       	end[1] = maze->finish[1];	
+
 	output[2] = end[0];
 	output[3] = end[1];
 

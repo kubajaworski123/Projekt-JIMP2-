@@ -2,10 +2,8 @@
 #define FORMAT_H
 
 #include <stdint.h>
+
 void right_on(uint8_t** right, int row, int column);
 void bottom_on(uint8_t** bottom, int row, int column);
-
-int bottom_exists(uint8_t** bottom , int row , int column);
-int right_exists(uint8_t** right , int row , int column);
 
 #endif

@@ -1,6 +1,7 @@
 #include "structure.h"
 #include <stdint.h>
 #include <stdlib.h>
+
 // Funkcja maze_init alokuje pamięć na nową strukturę labiryntu,
 // natomiast funkcja maze_free ją zwalnia.
 
@@ -21,4 +22,5 @@ void maze_free(Maze maze){
         free(maze->bottom);
         free(maze->start);
         free(maze->finish);
+	free(maze);
 }
